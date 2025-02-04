@@ -1,0 +1,4 @@
+You can download the **WideWorldImporters** sample database for SQL Server (starting from 2016) and Azure SQL Database here:  
+🔗 [WideWorldImporters Sample Database](https://github.com/Microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)  
+
+For more details, refer to the official [documentation](https://learn.microsoft.com/it-it/sql/samples/wide-world-importers-what-is?view=sql-server-ver16).
