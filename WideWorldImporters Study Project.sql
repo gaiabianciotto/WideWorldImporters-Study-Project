@@ -146,19 +146,3 @@ WHERE RowNum = 1
 ORDER BY MaxLoss DESC; 
 
 
-
-/* Task 5 
-In the database SQLPlayground, write a SQL query selecting all the customers' data who have purchased all the products AND have bought more than 50 products 
-in total (sum of all purchases).
-*/ 
-
-SELECT c.CustomerID, FirstName
-FROM dbo.Customers as c 
-INNER JOIN dbo.Purchased as p 
-ON c.CustomerID=p.CustomerID 
-INNER JOIN dbo.Products as pr
-ON pr.ProductID=p.ProductID
-GROUP BY c.CustomerID, c.FirstName
-HAVING
-COUNT(DISTINCT p.ProductID) = (SELECT COUNT(*) FROM dbo.Products)
-AND SUM(Quantity*UnitPrice)>50
