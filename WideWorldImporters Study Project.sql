@@ -1,5 +1,6 @@
-/* Task 1 */
+-- Task 1:
 
+USE WideWorldImporters
 select c.CustomerID, c.CustomerName,
 count( DISTINCT o.OrderID) as TotalNBOrders, 
 count( DISTINCT i.InvoiceID) as TotalNBInvoices, 
@@ -16,12 +17,11 @@ on o.OrderID = i.OrderID
 INNER JOIN sales.InvoiceLines as l
 on i.InvoiceID = l.InvoiceID
 GROUP BY c.CustomerID, c.CustomerName 
-ORDER BY AbsoluteValueDifference,TotalNBOrders, c.CustomerName
+ORDER BY AbsoluteValueDifference Desc,TotalNBOrders, c.CustomerName 
 
+-- Task 2:
 
-
-/* Task 2 */ 
-
+USE WideWorldImporters
 UPDATE Sales.InvoiceLines 
 SET UnitPrice = Unitprice+20
 WHERE InvoiceLineID=
@@ -31,13 +31,11 @@ FROM Sales.InvoiceLines as Il
 where Il.InvoiceID=(SELECT TOP 1 InvoiceID
 FROM sales.Invoices as I where I.CustomerID= 1060 ORDER BY InvoiceID)
 ORDER BY InvoiceLineID 
-);
+); 
 
+-- Task 3:
 
-
-/* Task 3 */ 
-
-CREATE PROCEDURE ReportCustomerTurnover
+CREATE PROCEDURE ReportCustomerTurnover2
     @ayear INT = 2013,   
     @choice INT = 1     
 AS
@@ -53,78 +51,74 @@ BEGIN
     BEGIN
         
         SELECT 
-            C.CustomerName,
-            YEAR(I.InvoiceDate) AS InvoiceYear,
-            COALESCE(SUM(IL.UnitPrice * IL.Quantity), 0) AS TotalTurnover
-        FROM Sales.Invoices AS I
-        INNER JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
-        INNER JOIN Sales.Customers AS C ON I.CustomerID = C.CustomerID
-        WHERE YEAR(I.InvoiceDate) BETWEEN 2013 AND 2016
-        GROUP BY C.CustomerName, YEAR(I.InvoiceDate)
-        ORDER BY C.CustomerName, InvoiceYear;
+    C.CustomerName,
+    COALESCE(SUM(CASE WHEN YEAR(I.InvoiceDate) = 2013 THEN IL.UnitPrice * IL.Quantity END), 0) AS Turnover_2013,
+    COALESCE(SUM(CASE WHEN YEAR(I.InvoiceDate) = 2014 THEN IL.UnitPrice * IL.Quantity END), 0) AS Turnover_2014,
+    COALESCE(SUM(CASE WHEN YEAR(I.InvoiceDate) = 2015 THEN IL.UnitPrice * IL.Quantity END), 0) AS Turnover_2015,
+    COALESCE(SUM(CASE WHEN YEAR(I.InvoiceDate) = 2016 THEN IL.UnitPrice * IL.Quantity END), 0) AS Turnover_2016
+FROM Sales.Invoices AS I
+INNER JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
+INNER JOIN Sales.Customers AS C ON I.CustomerID = C.CustomerID
+WHERE YEAR(I.InvoiceDate) BETWEEN 2013 AND 2016
+GROUP BY C.CustomerName
+ORDER BY C.CustomerName;
     END
     ELSE IF @choice = 1
     BEGIN
         
-        SELECT 
-            C.CustomerName,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 1 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jan,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 2 THEN IL.UnitPrice * IL.Quantity END), 0) AS Feb,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 3 THEN IL.UnitPrice * IL.Quantity END), 0) AS Mar,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 4 THEN IL.UnitPrice * IL.Quantity END), 0) AS Apr,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 5 THEN IL.UnitPrice * IL.Quantity END), 0) AS May,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 6 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jun,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 7 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jul,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 8 THEN IL.UnitPrice * IL.Quantity END), 0) AS Aug,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 9 THEN IL.UnitPrice * IL.Quantity END), 0) AS Sep,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 10 THEN IL.UnitPrice * IL.Quantity END), 0) AS Oct,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 11 THEN IL.UnitPrice * IL.Quantity END), 0) AS Nov,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 12 THEN IL.UnitPrice * IL.Quantity END), 0) AS Dec
-        FROM Sales.Invoices AS I
-        INNER JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
-        INNER JOIN Sales.Customers AS C ON I.CustomerID = C.CustomerID
-        WHERE YEAR(I.InvoiceDate) = @ayear
-        GROUP BY C.CustomerName
-        ORDER BY C.CustomerName;
+  SELECT 
+    C.CustomerName,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 1 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jan,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 2 THEN IL.UnitPrice * IL.Quantity END), 0) AS Feb,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 3 THEN IL.UnitPrice * IL.Quantity END), 0) AS Mar,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 4 THEN IL.UnitPrice * IL.Quantity END), 0) AS Apr,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 5 THEN IL.UnitPrice * IL.Quantity END), 0) AS May,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 6 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jun,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 7 THEN IL.UnitPrice * IL.Quantity END), 0) AS Jul,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 8 THEN IL.UnitPrice * IL.Quantity END), 0) AS Aug,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 9 THEN IL.UnitPrice * IL.Quantity END), 0) AS Sep,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 10 THEN IL.UnitPrice * IL.Quantity END), 0) AS Oct,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 11 THEN IL.UnitPrice * IL.Quantity END), 0) AS Nov,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) = 12 THEN IL.UnitPrice * IL.Quantity END), 0) AS Dec
+FROM Sales.Customers AS C
+LEFT JOIN Sales.Invoices AS I ON C.CustomerID = I.CustomerID AND YEAR(I.InvoiceDate) = @ayear
+LEFT JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
+GROUP BY C.CustomerName
+ORDER BY C.CustomerName;
     END
     ELSE IF @choice = 2
     BEGIN
         
-        SELECT 
-            C.CustomerName,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (1,2,3) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q1,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (4,5,6) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q2,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (7,8,9) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q3,
-            COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (10,11,12) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q4
-        FROM Sales.Invoices AS I
-        INNER JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
-        INNER JOIN Sales.Customers AS C ON I.CustomerID = C.CustomerID
-        WHERE YEAR(I.InvoiceDate) = @ayear
-        GROUP BY C.CustomerName
-        ORDER BY C.CustomerName;
+       SELECT 
+    C.CustomerName,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (1,2,3) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q1,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (4,5,6) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q2,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (7,8,9) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q3,
+    COALESCE(SUM(CASE WHEN MONTH(I.InvoiceDate) IN (10,11,12) THEN IL.UnitPrice * IL.Quantity END), 0) AS Q4
+FROM Sales.Customers AS C
+LEFT JOIN Sales.Invoices AS I ON C.CustomerID = I.CustomerID AND YEAR(I.InvoiceDate) = @ayear
+LEFT JOIN Sales.InvoiceLines AS IL ON I.InvoiceID = IL.InvoiceID
+GROUP BY C.CustomerName
+ORDER BY C.CustomerName;
     END
 END;
-GO
-
-/* Example with @choice=1 and @ayear=2014 */
-
-USE [WideWorldImporters]
-GO
+Go
+-- EXAMPLE WITH 2, 2015;
+ GO
 DECLARE @ayear int;
 DECLARE @choice int;
-   SET @ayear = 2014
-   SET @choice  = 1
-EXECUTE  [dbo].[ReportCustomerTurnover] 
+   SET @ayear = 2015
+   SET @choice  = 2
+EXECUTE  [dbo].[ReportCustomerTurnover2] 
    @ayear
   ,@choice;
 GO 
 
+-- Task 4:
 
-
-/* Task 4 */ 
-
-WITH MaxLossCTE AS (
-    
+USE WideWorldImporters
+SELECT CustomerCategoryName, MaxLoss, CustomerName, CustomerID
+FROM (
     SELECT 
         c.CustomerID, 
         c.CustomerName, 
@@ -138,11 +132,10 @@ WITH MaxLossCTE AS (
     LEFT OUTER JOIN Sales.Invoices AS i ON i.OrderID = o.OrderID
     WHERE i.OrderID IS NULL
     GROUP BY cc.CustomerCategoryName, c.CustomerID, c.CustomerName
-)
-
-SELECT CustomerCategoryName, CustomerID, CustomerName, MaxLoss
-FROM MaxLossCTE
+) As Maxlosstable
 WHERE RowNum = 1
-ORDER BY MaxLoss DESC; 
+ORDER BY MaxLoss DESC;
+
+
 
 
